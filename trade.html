@@ -2,59 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profit & Loss Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trading Calculator with Fees</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
   <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-xl">
-    <h1 class="text-2xl font-bold mb-4 text-center">Trading Profit & Loss Calculator</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">📈 Compounded Trading Calculator</h1>
 
-    <div class="grid grid-cols-1 gap-4">
-      <input id="capital" type="number" placeholder="Initial Capital (AED)" class="border rounded-lg p-2 w-full" />
-      <input id="tradeAmount" type="number" placeholder="Amount per Trade (AED)" class="border rounded-lg p-2 w-full" />
-      <input id="tradesPerWeek" type="number" placeholder="Trades per Week" class="border rounded-lg p-2 w-full" />
-      <input id="weeks" type="number" placeholder="Number of Weeks" class="border rounded-lg p-2 w-full" />
-      <input id="winRate" type="number" placeholder="Win Rate (%)" class="border rounded-lg p-2 w-full" />
+    <div class="grid gap-4">
+      <input id="capital" type="number" placeholder="Initial Capital (AED)" class="border p-2 rounded-lg w-full" />
+      <input id="riskPercent" type="number" placeholder="Risk Per Trade (%)" class="border p-2 rounded-lg w-full" />
+      <input id="tradesPerWeek" type="number" placeholder="Trades Per Week" class="border p-2 rounded-lg w-full" />
+      <input id="weeks" type="number" placeholder="Number of Weeks" class="border p-2 rounded-lg w-full" />
+      <input id="winRate" type="number" placeholder="Win Rate (%)" class="border p-2 rounded-lg w-full" />
+      <input id="roiPercent" type="number" placeholder="ROI Per Winning Trade (%)" class="border p-2 rounded-lg w-full" />
+      <input id="feePerTrade" type="number" placeholder="Charge Per Trade (AED)" class="border p-2 rounded-lg w-full" />
 
       <button onclick="calculate()" class="bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700">
         Calculate
       </button>
 
-      <div id="result" class="mt-4 p-4 bg-gray-50 rounded-xl text-sm leading-relaxed border border-gray-200"></div>
+      <div id="result" class="mt-4 p-4 bg-gray-50 rounded-xl text-sm leading-relaxed border border-gray-200 whitespace-pre-wrap font-mono"></div>
     </div>
   </div>
 
   <script>
     function calculate() {
-      const capital = parseFloat(document.getElementById('capital').value);
-      const tradeAmount = parseFloat(document.getElementById('tradeAmount').value);
-      const tradesPerWeek = parseInt(document.getElementById('tradesPerWeek').value);
-      const weeks = parseInt(document.getElementById('weeks').value);
-      const winRate = parseFloat(document.getElementById('winRate').value) / 100;
+      let capital = parseFloat(document.getElementById("capital").value);
+      const riskPercent = parseFloat(document.getElementById("riskPercent").value) / 100;
+      const tradesPerWeek = parseInt(document.getElementById("tradesPerWeek").value);
+      const weeks = parseInt(document.getElementById("weeks").value);
+      const winRate = parseFloat(document.getElementById("winRate").value) / 100;
+      const roiPercent = parseFloat(document.getElementById("roiPercent").value) / 100;
+      const feePerTrade = parseFloat(document.getElementById("feePerTrade").value);
 
-      const totalTrades = tradesPerWeek * weeks;
-      const wins = Math.round(totalTrades * winRate);
-      const losses = totalTrades - wins;
+      let resultText = `Week | Start Capital | Wins | Losses | Fees | End Capital\n`;
+      resultText += `-----------------------------------------------------------------\n`;
 
-      const profitPerTrade = tradeAmount; // assuming 100% gain per win
-      const lossPerTrade = tradeAmount;   // assuming 100% loss per loss
+      for (let week = 1; week <= weeks; week++) {
+        const startCapital = capital;
+        const trades = tradesPerWeek;
+        const wins = Math.round(trades * winRate);
+        const losses = trades - wins;
 
-      const totalProfit = wins * profitPerTrade;
-      const totalLoss = losses * lossPerTrade;
-      const net = totalProfit - totalLoss;
-      const finalCapital = capital + net;
+        const tradeAmount = startCapital * riskPercent;
 
-      document.getElementById('result').innerHTML = `
-        ✅ <strong>Total Trades:</strong> ${totalTrades}<br>
-        🟢 <strong>Winning Trades:</strong> ${wins}<br>
-        🔴 <strong>Losing Trades:</strong> ${losses}<br><br>
+        const profit = wins * (tradeAmount * roiPercent);
+        const loss = losses * tradeAmount;
+        const totalFees = trades * feePerTrade;
 
-        💰 <strong>Total Profit:</strong> +${totalProfit.toFixed(2)} AED<br>
-        💸 <strong>Total Loss:</strong> -${totalLoss.toFixed(2)} AED<br>
-        📈 <strong>Net Gain/Loss:</strong> ${net >= 0 ? '+' : ''}${net.toFixed(2)} AED<br><br>
-        🧾 <strong>Final Capital:</strong> ${finalCapital.toFixed(2)} AED
-      `;
+        const net = profit - loss - totalFees;
+        capital = capital + net;
+
+        resultText += `${week.toString().padEnd(5)}| ${startCapital.toFixed(2).padEnd(13)}| ${wins.toString().padEnd(5)}| ${losses.toString().padEnd(7)}| ${totalFees.toFixed(2).padEnd(5)}| ${capital.toFixed(2)}\n`;
+      }
+
+      resultText += `\n💰 Final Capital After ${weeks} Weeks: ${capital.toFixed(2)} AED`;
+
+      document.getElementById("result").innerText = resultText;
     }
   </script>
 </body>
