@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Forex Trade Risk Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-6">
+
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md">
+    <h1 class="text-2xl font-bold mb-4 text-center">📊 Forex Risk-Based P/L Calculator</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input id="capital" type="number" placeholder="Capital (AED)" class="p-2 border rounded w-full">
+      <input id="riskPercent" type="number" step="0.1" placeholder="Risk per Trade (%)" class="p-2 border rounded w-full">
+      <input id="stopLoss" type="number" placeholder="Stop Loss (pips)" class="p-2 border rounded w-full">
+      <input id="takeProfit" type="number" placeholder="Take Profit (pips)" class="p-2 border rounded w-full">
+      <input id="commission" type="number" placeholder="Commission per trade (AED)" class="p-2 border rounded w-full">
+      <input id="swapFee" type="number" placeholder="Swap Fee per night (AED)" class="p-2 border rounded w-full">
+    </div>
+
+    <button onclick="calculate()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+      Calculate
+    </button>
+
+    <div id="result" class="mt-6 bg-gray-50 p-4 rounded shadow-inner hidden">
+      <h2 class="text-xl font-semibold mb-2">📈 Result</h2>
+      <p><strong>Lot Size:</strong> <span id="lotSize"></span></p>
+      <p><strong>Gross Profit (TP Hit):</strong> <span id="grossProfit"></span> AED</p>
+      <p><strong>Net Profit:</strong> <span id="netProfit"></span> AED</p>
+      <p class="mt-2"><strong>Gross Loss (SL Hit):</strong> <span id="grossLoss"></span> AED</p>
+      <p><strong>Net Loss:</strong> <span id="netLoss"></span> AED</p>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const capital = parseFloat(document.getElementById("capital").value);
+      const riskPercent = parseFloat(document.getElementById("riskPercent").value);
+      const stopLoss = parseFloat(document.getElementById("stopLoss").value);
+      const takeProfit = parseFloat(document.getElementById("takeProfit").value);
+      const commission = parseFloat(document.getElementById("commission").value);
+      const swapFee = parseFloat(document.getElementById("swapFee").value);
+
+      // Money to risk
+      const riskAmount = capital * (riskPercent / 100);
+
+      // Pip value per 1 lot (standard) is ~10 AED
+      const pipValuePerLot = 10;
+
+      // Calculate lot size based on risk and stop loss
+      const lotSize = riskAmount / (stopLoss * pipValuePerLot);
+
+      const grossProfit = takeProfit * pipValuePerLot * lotSize;
+      const grossLoss = stopLoss * pipValuePerLot * lotSize;
+
+      const totalFees = commission + swapFee;
+
+      const netProfit = grossProfit - totalFees;
+      const netLoss = grossLoss + totalFees;
+
+      document.getElementById("lotSize").innerText = lotSize.toFixed(2);
+      document.getElementById("grossProfit").innerText = grossProfit.toFixed(2);
+      document.getElementById("netProfit").innerText = netProfit.toFixed(2);
+      document.getElementById("grossLoss").innerText = grossLoss.toFixed(2);
+      document.getElementById("netLoss").innerText = netLoss.toFixed(2);
+
+      document.getElementById("result").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
