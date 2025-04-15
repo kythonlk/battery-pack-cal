@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Retail Price Profit Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">🧾 Retail Profit Calculator</h1>
+
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label class="font-semibold">Retail Price (AED)</label>
+        <input id="retailPrice" type="number" step="0.01" class="w-full p-2 border rounded-md" placeholder="e.g. 135">
+      </div>
+
+      <div>
+        <label class="font-semibold">Your Profit %</label>
+        <input id="profitPercent" type="number" value="35" step="0.01" class="w-full p-2 border rounded-md" placeholder="e.g. 35">
+      </div>
+
+      <div>
+        <label class="font-semibold">Amazon Commission %</label>
+        <input id="amazonPercent" type="number" value="15" step="0.01" class="w-full p-2 border rounded-md" placeholder="e.g. 15">
+      </div>
+
+      <div>
+        <label class="font-semibold">Discount Type</label>
+        <select id="discountType" class="w-full p-2 border rounded-md">
+          <option value="percentage">Percentage</option>
+          <option value="amount">Amount (AED)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-semibold">Discount Value</label>
+        <input id="discountValue" type="number" step="0.01" class="w-full p-2 border rounded-md" placeholder="e.g. 10 or 20">
+      </div>
+
+      <button onclick="calculate()" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+        Calculate Profit
+      </button>
+    </div>
+
+    <div id="results" class="mt-6 hidden">
+      <h2 class="text-lg font-semibold mb-2">📊 Results:</h2>
+      <ul class="space-y-1 text-sm">
+        <li><strong>Base Cost (Your Cost Price):</strong> AED <span id="baseCost"></span></li>
+        <li><strong>Discount Applied:</strong> AED <span id="discountApplied"></span></li>
+        <li><strong>Price After Discount:</strong> AED <span id="discountedPrice"></span></li>
+        <li><strong>Amazon Fee:</strong> AED <span id="amazonFee"></span></li>
+        <li><strong>Final Earning:</strong> AED <span id="finalEarning"></span></li>
+        <li><strong>Net Profit:</strong> AED <span id="netProfit"></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const retail = parseFloat(document.getElementById('retailPrice').value);
+      const profitPct = parseFloat(document.getElementById('profitPercent').value);
+      const amazonPct = parseFloat(document.getElementById('amazonPercent').value);
+      const discountType = document.getElementById('discountType').value;
+      const discountVal = parseFloat(document.getElementById('discountValue').value);
+
+      if (isNaN(retail) || isNaN(profitPct) || isNaN(amazonPct)) {
+        alert("Please fill in all required values");
+        return;
+      }
+      const baseCost = retail - retail * profitPct / 100;
+
+      let discountAmount = 0;
+      if (!isNaN(discountVal)) {
+        discountAmount = discountType === "percentage"
+          ? retail * (discountVal / 100)
+          : discountVal;
+      }
+
+      const discountedPrice = retail - discountAmount;
+      const amazonFee = discountedPrice * (amazonPct / 100);
+      const finalEarning = discountedPrice - amazonFee;
+      const netProfit = finalEarning - baseCost;
+
+      document.getElementById('baseCost').textContent = baseCost.toFixed(2);
+      document.getElementById('discountApplied').textContent = discountAmount.toFixed(2);
+      document.getElementById('discountedPrice').textContent = discountedPrice.toFixed(2);
+      document.getElementById('amazonFee').textContent = amazonFee.toFixed(2);
+      document.getElementById('finalEarning').textContent = finalEarning.toFixed(2);
+      document.getElementById('netProfit').textContent = netProfit.toFixed(2);
+      document.getElementById('results').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
